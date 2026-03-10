@@ -47,7 +47,9 @@ export default function Home() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
+  const [splashExiting, setSplashExiting] = useState(false);
   const splashTimerRef = useRef(false);
+  const splashExitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchData = useCallback(async () => {
     const now = Date.now();
@@ -186,6 +188,13 @@ export default function Home() {
     setIsPlaying(!isPlaying);
   }, [isPlaying]);
 
+  const beginSplashExit = useCallback(() => {
+    if (splashTimerRef.current) return;
+    splashTimerRef.current = true;
+    setSplashExiting(true);
+    splashExitTimeoutRef.current = setTimeout(() => setSplashDone(true), 600);
+  }, []);
+
   useEffect(() => {
     const stored = loadHistoricalData();
     if (stored.length > 0) {
@@ -201,29 +210,32 @@ export default function Home() {
 
   // Dismiss splash when loading finishes (success or error) or after 6s max
   useEffect(() => {
-    if (splashTimerRef.current) return;
     if (!loading) {
-      splashTimerRef.current = true;
       // Small delay so content can paint before splash fades
-      const t = setTimeout(() => setSplashDone(true), 800);
+      const t = setTimeout(() => beginSplashExit(), 800);
       return () => clearTimeout(t);
     }
     // Fallback: always dismiss after 6 seconds
-    const fallback = setTimeout(() => {
-      if (!splashTimerRef.current) {
-        splashTimerRef.current = true;
-        setSplashDone(true);
-      }
-    }, 6000);
+    const fallback = setTimeout(() => beginSplashExit(), 6000);
     return () => clearTimeout(fallback);
-  }, [loading]);
+  }, [loading, beginSplashExit]);
+
+  useEffect(() => {
+    return () => {
+      if (splashExitTimeoutRef.current) {
+        clearTimeout(splashExitTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <main className="min-h-screen relative">
       {/* Splash Screen */}
       {!splashDone && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center splash-checkerboard"
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center splash-checkerboard ${
+            splashExiting ? "splash-exit" : ""
+          }`}
         >
           <img
             src="/ceobnch-01.png"
