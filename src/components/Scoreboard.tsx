@@ -169,26 +169,25 @@ export default function Scoreboard() {
         return (
           <div
             key={entry.ceo_slug}
-            className="rounded-2xl bg-[#141414] p-4 relative overflow-hidden flex flex-col items-center gap-2"
+            className="rounded-2xl bg-[#141414] px-3 py-3 relative overflow-hidden flex items-center gap-3"
             style={{ border: `1px solid ${color}33` }}
           >
             <ProviderLogo slug={entry.ceo_slug} />
             <img
               src={CEO_AVATARS[entry.ceo_slug]}
               alt={entry.ceo_name}
-              className="w-32 h-32 rounded-full object-cover shrink-0 relative z-10"
-              style={{ imageRendering: "pixelated", boxShadow: `0 0 20px ${color}30` }}
+              className="w-16 h-16 object-contain shrink-0 relative z-10"
+              style={{ imageRendering: "pixelated" }}
             />
-            <div className="text-center relative z-10">
-              <p className="font-bold text-base leading-tight" style={{ color }}>{entry.ceo_name}</p>
-              <p className="text-xs text-[#888] leading-tight mt-0.5">{entry.model || entry.provider || entry.ceo_slug}</p>
-            </div>
-            <div className="liquid-glass rounded-xl px-3 py-2 w-full relative z-10 text-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider italic" style={{ color }}>PnL</span>
-              <p className={`text-2xl font-bold ${entry.avg_pnl_percent >= 0 ? "text-[#81c784]" : "text-[#e57373]"}`}>
-                {formatPercent(entry.avg_pnl_percent)}
-              </p>
-              <p className="text-xs text-[#888]">{formatUsd(entry.total_pnl_usd)}</p>
+            <div className="flex-1 min-w-0 relative z-10">
+              <p className="font-bold text-sm leading-tight truncate" style={{ color }}>{entry.ceo_name}</p>
+              <p className="text-[10px] text-[#666] leading-tight mt-0.5 truncate">{entry.model || entry.provider || entry.ceo_slug}</p>
+              <div className="mt-1.5">
+                <p className={`text-xl font-bold leading-none ${entry.avg_pnl_percent >= 0 ? "text-[#81c784]" : "text-[#e57373]"}`}>
+                  {formatPercent(entry.avg_pnl_percent)}
+                </p>
+                <p className="text-[11px] text-[#666] mt-0.5">{formatUsd(entry.total_pnl_usd)}</p>
+              </div>
             </div>
           </div>
         );
