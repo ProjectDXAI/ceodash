@@ -140,7 +140,7 @@ function getVaultUrl(vaultAddress: string): string {
 }
 
 function getTokenUrl(tokenAddress: string): string {
-  return `https://www.terminal.markets/?token=${tokenAddress}`;
+  return `https://www.terminal.markets/tokens/${tokenAddress}`;
 }
 
 function formatUsd(value: number): string {

@@ -148,7 +148,7 @@ export default function MarketOverview() {
           return (
             <a
               key={token.symbol}
-              href={`https://www.terminal.markets/?token=${token.tokenAddress}`}
+              href={`https://www.terminal.markets/tokens/${token.tokenAddress}`}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-2xl border border-[#2a2a2a] bg-[#141414] p-3 hover:border-[#444] transition-colors block"
