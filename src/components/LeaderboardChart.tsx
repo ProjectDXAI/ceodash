@@ -185,7 +185,7 @@ export default function LeaderboardChart({
       {(
         <div className="relative z-10 h-[600px] p-3" style={{ background: "rgba(0,0,0,0.45)" }}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 20, right: 200, left: 20, bottom: 10 }}>
+            <LineChart data={chartData} margin={{ top: 30, right: 180, left: 40, bottom: 10 }}>
               <CartesianGrid strokeDasharray="6 6" stroke="rgba(255,255,255,0.15)" vertical={false} />
               <XAxis
                 dataKey="date"
@@ -299,12 +299,19 @@ export default function LeaderboardChart({
                         const color = CEO_COLORS[ceo.ceo_slug] || "#888";
                         const gif = CEO_GIFS[ceo.ceo_slug];
                         const labelText = `$${Math.round(val).toLocaleString("en-US")}`;
-                        const labelWidth = labelText.length * 7 + 8;
-                        const labelHeight = 24;
-                        const labelX = xVal + r + 4;
+                        const labelFontSize = 16;
+                        const labelWidth = labelText.length * 9 + 14;
+                        const labelHeight = 28;
+                        const labelX = xVal + r + 6;
                         const labelY = adjustedY - labelHeight / 2;
                         const gifSize = r * 2;
                         const isHovered = hoveredSlug === ceo.ceo_slug;
+                        const nameText = ceo.ceo_name;
+                        const nameFontSize = 11;
+                        const nameWidth = nameText.length * 6.5 + 12;
+                        const nameHeight = 20;
+                        const nameX = labelX + (labelWidth - nameWidth) / 2;
+                        const nameY = labelY - nameHeight - 4;
                         return (
                           <g key={`endpoint-${ceo.ceo_slug}`} style={{ filter: `drop-shadow(0 0 6px ${color}80)` }}>
                             {/* Connector line from actual data point to adjusted bubble */}
@@ -343,13 +350,39 @@ export default function LeaderboardChart({
                                   />
                                 </foreignObject>
                               )}
+                              {/* CEO name label — shown on hover */}
+                              {isHovered && (
+                                <>
+                                  <rect
+                                    x={nameX}
+                                    y={nameY}
+                                    width={nameWidth}
+                                    height={nameHeight}
+                                    fill="rgba(0,0,0,0.85)"
+                                    stroke={color}
+                                    strokeWidth={1}
+                                    rx={4}
+                                  />
+                                  <text
+                                    x={nameX + nameWidth / 2}
+                                    y={nameY + nameHeight / 2}
+                                    textAnchor="middle"
+                                    dominantBaseline="central"
+                                    fill={color}
+                                    fontSize={nameFontSize}
+                                    fontWeight={700}
+                                  >
+                                    {nameText}
+                                  </text>
+                                </>
+                              )}
                               <rect
                                 x={labelX}
                                 y={labelY}
                                 width={labelWidth}
                                 height={labelHeight}
                                 fill={color}
-                                rx={4}
+                                rx={6}
                               />
                               <text
                                 x={labelX + labelWidth / 2}
@@ -357,8 +390,8 @@ export default function LeaderboardChart({
                                 textAnchor="middle"
                                 dominantBaseline="central"
                                 fill="white"
-                                fontSize={13}
-                                fontWeight={700}
+                                fontSize={labelFontSize}
+                                fontWeight={800}
                               >
                                 {labelText}
                               </text>

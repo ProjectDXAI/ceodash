@@ -432,7 +432,7 @@ function GrassField() {
 
   // Wide & deep field so edges are never visible
   const grassGeometry = useMemo(
-    () => createGrassGeometry(160000, 250, 60, 1.4, 0.6, 0.06),
+    () => createGrassGeometry(50000, 250, 60, 1.4, 0.6, 0.07),
     []
   );
 
@@ -523,7 +523,7 @@ export default function GrassBackground({ className }: GrassBackgroundProps) {
           near: 0.1,
           far: 100,
         }}
-        dpr={[1, 1.5]}
+        dpr={1}
         gl={{ antialias: true, alpha: true, toneMapping: THREE.NoToneMapping }}
         style={{ width: "100%", height: "100%" }}
       >

@@ -95,7 +95,7 @@ export default function ChatBox() {
     }
 
     fetchMessages();
-    const interval = setInterval(fetchMessages, 30000);
+    const interval = setInterval(fetchMessages, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -170,7 +170,7 @@ export default function ChatBox() {
                   <span className="text-xs font-bold mr-1.5" style={{ color }}>
                     {name}
                   </span>
-                  <span className="text-xs leading-relaxed text-[#999]">
+                  <span className="text-[13px] leading-relaxed text-[#bbb]">
                     {renderContent(msg.content, idx)}
                   </span>
                 </div>

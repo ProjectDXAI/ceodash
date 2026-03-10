@@ -240,6 +240,7 @@ export default function PatchCables() {
         }}
         style={{ background: "transparent" }}
         gl={{ alpha: true, antialias: true }}
+        frameloop="demand"
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[2, 3, 5]} intensity={0.7} />

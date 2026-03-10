@@ -1,15 +1,6 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 
 interface TokenMarketData {
   priceUsd: string;
@@ -82,26 +73,12 @@ function formatPrice(n: number): string {
   return `$${n.toFixed(2)}`;
 }
 
-function CustomTooltip({ active, payload, label }: Record<string, unknown>) {
-  if (!active || !payload) return null;
-  const entries = payload as Array<{ name: string; value: number; color: string }>;
-  return (
-    <div className="bg-[#1a1a1a]/95 backdrop-blur-sm border border-[#333] rounded-xl p-3 shadow-xl">
-      <p className="text-[#888] text-xs mb-2 font-bold">{label as string}</p>
-      {entries
-        .filter((e) => e.value !== undefined && e.value !== null)
-        .sort((a, b) => b.value - a.value)
-        .map((entry) => (
-          <div key={entry.name} className="flex items-center justify-between gap-4 text-xs py-0.5">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
-              <span className="text-[#aaa] font-bold">{entry.name}</span>
-            </div>
-            <span className="font-black text-white">{formatPrice(entry.value)}</span>
-          </div>
-        ))}
-    </div>
-  );
+function formatMarketCap(priceUsd: number): string {
+  const mcap = priceUsd * 1_000_000_000;
+  if (mcap >= 1_000_000_000) return `$${(mcap / 1_000_000_000).toFixed(1)}B`;
+  if (mcap >= 1_000_000) return `$${(mcap / 1_000_000).toFixed(1)}M`;
+  if (mcap >= 1_000) return `$${(mcap / 1_000).toFixed(0)}K`;
+  return `$${mcap.toFixed(0)}`;
 }
 
 export default function MarketOverview() {
@@ -118,7 +95,7 @@ export default function MarketOverview() {
       }
     }
     fetchMarket();
-    const interval = setInterval(fetchMarket, 30000);
+    const interval = setInterval(fetchMarket, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -134,48 +111,9 @@ export default function MarketOverview() {
     if (preload) tokens.forEach((t) => preload(t.image));
   }, [tokens]);
 
-  const chartData = useMemo(() => {
-    if (tokens.length === 0) return [];
-
-    const maxLen = Math.max(...tokens.map((t) => t.marketData["1d"].sparkline.length));
-    if (maxLen < 2) return [];
-
-    const now = Date.now();
-    const dayMs = 24 * 60 * 60 * 1000;
-    const points: Array<Record<string, unknown>> = [];
-
-    for (let i = 0; i < maxLen; i++) {
-      const time = now - dayMs + (i / (maxLen - 1)) * dayMs;
-      const hours = new Date(time).getHours();
-      const mins = new Date(time).getMinutes();
-      const ampm = hours >= 12 ? "PM" : "AM";
-      const h = hours % 12 || 12;
-      const label = `${h}:${mins.toString().padStart(2, "0")} ${ampm}`;
-
-      const point: Record<string, unknown> = { time: label };
-      for (const token of tokens) {
-        const spark = token.marketData["1d"].sparkline;
-        const idx = Math.floor((i / (maxLen - 1)) * (spark.length - 1));
-        const val = parseFloat(spark[idx]);
-        if (!isNaN(val) && val > 0) {
-          point[token.symbol] = val;
-        }
-      }
-      points.push(point);
-    }
-
-    return points;
-  }, [tokens]);
-
-  if (!market || chartData.length === 0) return null;
+  if (!market || tokens.length === 0) return null;
 
   const { overview } = market;
-
-  const tickCount = 5;
-  const tickIndices = Array.from({ length: tickCount }, (_, i) =>
-    Math.floor((i / (tickCount - 1)) * (chartData.length - 1))
-  );
-  const ticks = tickIndices.map((i) => chartData[i].time as string);
 
   return (
     <div data-panel="market" className="panel-ethereal panel-ethereal-delay-2 rounded-[20px] border border-[#2a2a2a] overflow-hidden flex flex-col">
@@ -201,70 +139,44 @@ export default function MarketOverview() {
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="h-[350px] px-2 py-3">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 15, right: 55, left: 10, bottom: 15 }}>
-            <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.06)" vertical={false} />
-            <XAxis
-              dataKey="time"
-              stroke="rgba(255,255,255,0.3)"
-              fontSize={10}
-              tickLine={false}
-              axisLine={false}
-              dy={6}
-              fontWeight={700}
-              ticks={ticks}
-              label={{ value: "Time (24h)", position: "bottom", offset: -2, fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
-            />
-            <YAxis
-              stroke="rgba(255,255,255,0.3)"
-              fontSize={9}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v) => formatPrice(v)}
-              dx={-3}
-              fontWeight={700}
-              scale="log"
-              domain={["auto", "auto"]}
-              allowDataOverflow
-              width={70}
-              label={{ value: "Price (USD)", angle: -90, position: "left", offset: -5, fill: "rgba(255,255,255,0.25)", fontSize: 9 }}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            {tokens.map((token, i) => (
-              <Line
-                key={token.symbol}
-                type="monotone"
-                dataKey={token.symbol}
-                name={token.symbol}
-                stroke={TOKEN_COLORS[i % TOKEN_COLORS.length]}
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 3, strokeWidth: 1 }}
-                label={(props: Record<string, unknown>) => {
-                  const { x, y, index } = props as { x: number; y: number; index: number };
-                  if (index !== chartData.length - 1) return <g key={`e-${token.symbol}-${index}`} />;
-                  const size = 28;
-                  const color = TOKEN_COLORS[i % TOKEN_COLORS.length];
-                  return (
-                    <g key={`icon-${token.symbol}`}>
-                      <circle cx={x} cy={y} r={size / 2 + 2} fill={color} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" }} />
-                      <image
-                        href={token.image}
-                        x={x - size / 2}
-                        y={y - size / 2}
-                        width={size}
-                        height={size}
-                        style={{ imageRendering: "auto", clipPath: "circle(50%)" }}
-                      />
-                    </g>
-                  );
-                }}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+      {/* Token cards grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 p-3">
+        {tokens.slice(0, 7).map((token, i) => {
+          const price = parseFloat(token.marketData.priceUsd);
+          const change = token.marketData["1d"].priceChangePercent;
+          const color = TOKEN_COLORS[i % TOKEN_COLORS.length];
+          return (
+            <a
+              key={token.symbol}
+              href={`https://www.terminal.markets/?token=${token.tokenAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-2xl border border-[#2a2a2a] bg-[#141414] p-3 hover:border-[#444] transition-colors block"
+              style={{ borderLeftColor: color, borderLeftWidth: 3 }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <img
+                  src={token.image}
+                  alt={token.symbol}
+                  className="w-8 h-8 rounded-full"
+                  width={32}
+                  height={32}
+                />
+                <span className="text-sm font-bold text-white">{token.symbol}</span>
+              </div>
+              <div className="text-sm text-white font-bold">{formatMarketCap(price)}</div>
+              <div className="text-[10px] text-[#666] mt-0.5 font-mono">{formatPrice(price)}</div>
+              <div
+                className={`text-xs font-bold mt-1 ${
+                  change >= 0 ? "text-[#2ecc71]" : "text-[#e74c3c]"
+                }`}
+              >
+                {change >= 0 ? "+" : ""}
+                {change.toFixed(2)}%
+              </div>
+            </a>
+          );
+        })}
       </div>
 
       {/* Bottom bar */}

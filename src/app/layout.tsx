@@ -5,6 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "CEO Bench",
   description: "Track the traders on Terminal Markets!",
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({
