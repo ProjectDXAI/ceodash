@@ -202,16 +202,23 @@ export default function CeoPortfolio({
           if (!vaultData || typeof vaultData !== "object") continue;
           const vault = vaultData as Record<string, unknown>;
 
+          const positionsArray = Array.isArray(vault.positions) ? vault.positions : [];
+          const nonEthPositionsUsd = positionsArray.reduce((sum, pos) => {
+            const valUsd = parseFloat(String((pos as Record<string, unknown>).currentValueUsd || "0"));
+            return sum + (isNaN(valUsd) ? 0 : valUsd);
+          }, 0);
+
           const ethBalanceWei = vault.ethBalance as string | undefined;
           if (ethBalanceWei && parseFloat(ethBalanceWei) > 0) {
-            const ethUsd = parseFloat((vault.overallValueUsd as string) || "0");
-            if (!tokenMap["eth"]) {
-              tokenMap["eth"] = { tokenSymbol: "ETH", totalValueUsd: 0, tokenImage: null };
+            const vaultTotalUsd = parseFloat(String(vault.overallValueUsd || "0"));
+            const ethUsd = Math.max(0, vaultTotalUsd - nonEthPositionsUsd);
+            if (ethUsd > 0) {
+              if (!tokenMap["eth"]) {
+                tokenMap["eth"] = { tokenSymbol: "ETH", totalValueUsd: 0, tokenImage: null };
+              }
+              tokenMap["eth"].totalValueUsd += ethUsd;
             }
-            tokenMap["eth"].totalValueUsd += ethUsd;
           }
-
-          const positionsArray = Array.isArray(vault.positions) ? vault.positions : [];
 
           for (const pos of positionsArray as Array<Record<string, unknown>>) {
             const addr = pos.tokenAddress as string;
