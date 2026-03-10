@@ -46,6 +46,8 @@ export default function Home() {
   const seededRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [splashDone, setSplashDone] = useState(false);
+  const splashTimerRef = useRef(false);
 
   const fetchData = useCallback(async () => {
     const now = Date.now();
@@ -53,10 +55,13 @@ export default function Home() {
     lastFetchRef.current = now;
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
       const [sbRes, vaultsRes] = await Promise.all([
-        fetch("/api/scoreboard"),
-        fetch("/api/vaults"),
+        fetch("/api/scoreboard", { signal: controller.signal }),
+        fetch("/api/vaults", { signal: controller.signal }),
       ]);
+      clearTimeout(timeout);
       const sbJson = await sbRes.json();
       const vaultsJson = await vaultsRes.json();
 
@@ -194,8 +199,46 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
+  // Dismiss splash when loading finishes (success or error) or after 6s max
+  useEffect(() => {
+    if (splashTimerRef.current) return;
+    if (!loading) {
+      splashTimerRef.current = true;
+      // Small delay so content can paint before splash fades
+      const t = setTimeout(() => setSplashDone(true), 800);
+      return () => clearTimeout(t);
+    }
+    // Fallback: always dismiss after 6 seconds
+    const fallback = setTimeout(() => {
+      if (!splashTimerRef.current) {
+        splashTimerRef.current = true;
+        setSplashDone(true);
+      }
+    }, 6000);
+    return () => clearTimeout(fallback);
+  }, [loading]);
+
   return (
     <main className="min-h-screen relative">
+      {/* Splash Screen */}
+      {!splashDone && (
+        <div
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center splash-checkerboard"
+        >
+          <img
+            src="/ceobnch-01.png"
+            alt="CEO Bench"
+            className="h-40 w-auto mb-6"
+          />
+          <div className="flex items-center gap-1 text-lg text-[#666] font-bold tracking-wider">
+            <span>LOADING</span>
+            <span className="loading-dot">.</span>
+            <span className="loading-dot">.</span>
+            <span className="loading-dot">.</span>
+          </div>
+        </div>
+      )}
+
       <MiiFloor />
 
       {/* Header */}
@@ -209,7 +252,7 @@ export default function Home() {
               <span className="text-white font-bold">CEOBench</span> by <span className="text-white font-bold">DXRG</span> &mdash; We gave <span className="text-[#2ecc71] font-bold">ChatGPT</span>, <span className="text-[#e74c3c] font-bold">Claude</span>, <span className="text-[#f39c12] font-bold">Grok</span>, and <span className="text-[#3498db] font-bold">Gemini</span> <span className="text-white font-bold">$1,000 each</span> to manage five trading agents on <a href="https://terminal.markets" target="_blank" rel="noopener noreferrer" className="text-white font-bold underline hover:text-[#ccc]">DX Terminal Pro</a>. A live benchmark of LLM performance in subagent management under real market pressure.
             </p>
             <p className="text-[13px] text-[#999] leading-relaxed">
-              <span className="text-white font-bold">DX Terminal Pro</span> is the first Onchain Agentic Market on <span className="text-white font-bold">Base</span>. Users deposit into vaults managed by AI agents that execute strategies across DeFi. Each CEO model oversees a portfolio of agents, making allocation and risk decisions in real time.
+              <a href="https://terminal.markets" target="_blank" rel="noopener noreferrer" className="text-white font-bold underline hover:text-[#ccc]">DX Terminal Pro</a> is the first Onchain Agentic Market on <span className="text-white font-bold">Base</span>. Users deposit into vaults managed by AI agents that execute strategies across DeFi. Each CEO model oversees a portfolio of agents, making allocation and risk decisions in real time.
             </p>
           </div>
         </div>
@@ -250,18 +293,7 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-6">
-        {/* Loading State */}
-        {loading && currentData.length === 0 && (
-          <div className="mii-card p-12 flex flex-col items-center justify-center text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-b from-[#333] to-[#222] flex items-center justify-center shadow-lg border border-[#3a3a3a] mb-4">
-              <span className="text-2xl animate-bounce text-white">···</span>
-            </div>
-            <p className="text-xl font-bold text-white mb-2">Loading...</p>
-            <p className="text-sm text-[#666]">
-              Finding the CEOs for you!
-            </p>
-          </div>
-        )}
+        {/* Loading handled by splash screen */}
 
         {/* Error State */}
         {error && (
@@ -316,7 +348,7 @@ export default function Home() {
             <MarketOverview />
           </div>
           {/* Activity Feed — bottom */}
-          <div className="relative z-10 mt-16">
+          <div className="relative z-10 mt-10">
             <ActivityFeed />
           </div>
         </div>
@@ -326,10 +358,10 @@ export default function Home() {
       {/* Fixed bottom-left audio toggle */}
       <button
         onClick={toggleMusic}
-        className="fixed bottom-6 left-6 z-50 liquid-glass w-12 h-12 rounded-full flex items-center justify-center cursor-pointer border-0 hover:scale-110 active:scale-95 transition-transform"
+        className="fixed bottom-6 left-6 z-50 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer border border-[#333] bg-[#1a1a1a]/90 backdrop-blur-sm hover:scale-110 hover:bg-[#222] active:scale-95 transition-all shadow-lg"
         title={isPlaying ? "Mute" : "Unmute"}
       >
-        <span className="relative z-10 text-white flex items-center justify-center">
+        <span className="text-white flex items-center justify-center">
           {isPlaying ? (
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
               <path d="M3 9v6h4l5 5V4L7 9H3z" />
@@ -337,7 +369,7 @@ export default function Home() {
               <path d="M19 12c0 3.53-2.04 6.58-5 8.03v2.05c4.01-1.56 6.87-5.37 6.87-10.08S18.01 3.48 14 1.92v2.05c2.96 1.46 5 4.5 5 8.03z" />
             </svg>
           ) : (
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 opacity-50">
               <path d="M3 9v6h4l5 5V4L7 9H3z" />
               <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63z" />
               <path d="M19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71z" />

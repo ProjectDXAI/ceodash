@@ -49,6 +49,8 @@ export default function MiiFloor() {
   const rafRef = useRef<number>(0);
   const rotationsRef = useRef<Float32Array | null>(null);
   const gridSizeRef = useRef({ cols: 0, rows: 0 });
+  const needsDrawRef = useRef(true);
+  const idleFramesRef = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -79,15 +81,29 @@ export default function MiiFloor() {
     function onMouseMove(e: MouseEvent) {
       mouseRef.current.x = e.clientX;
       mouseRef.current.y = e.clientY;
+      needsDrawRef.current = true;
+      idleFramesRef.current = 0;
     }
 
     function onMouseLeave() {
       mouseRef.current.x = -9999;
       mouseRef.current.y = -9999;
+      needsDrawRef.current = true;
+      idleFramesRef.current = 0;
     }
 
     function draw() {
       if (!ctx || !canvas || !rotationsRef.current) return;
+
+      // Stop looping after tiles have settled (60 frames of idle = ~1s)
+      if (!needsDrawRef.current) {
+        idleFramesRef.current++;
+        if (idleFramesRef.current > 60) {
+          rafRef.current = requestAnimationFrame(draw);
+          return;
+        }
+      }
+      needsDrawRef.current = false;
 
       const w = canvas.width / dpr;
       const h = canvas.height / dpr;

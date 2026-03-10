@@ -73,7 +73,7 @@ export default function ActivityFeed() {
       }
     }
     fetchIntents();
-    const interval = setInterval(fetchIntents, 30000);
+    const interval = setInterval(fetchIntents, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -117,7 +117,7 @@ export default function ActivityFeed() {
       {/* Feed */}
       <div
         ref={scrollRef}
-        className="max-h-[280px] overflow-y-auto px-3 py-2 space-y-0.5"
+        className="max-h-[220px] overflow-y-auto px-3 py-2 space-y-0.5"
         style={{
           maskImage: "linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)",
           WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)",
@@ -134,7 +134,7 @@ export default function ActivityFeed() {
           return (
             <div
               key={intent.id}
-              className="group flex items-start gap-0 py-1 px-1 rounded hover:bg-[#ffffff06] transition-colors"
+              className="group flex items-start gap-0 py-0.5 px-1 rounded hover:bg-[#ffffff06] transition-colors"
             >
               <span className="text-[10px] text-[#333] w-8 flex-shrink-0 pt-0.5 text-right mr-2 font-mono">
                 {time}
@@ -142,7 +142,7 @@ export default function ActivityFeed() {
               <img
                 src={avatar}
                 alt={name}
-                className="w-5 h-5 rounded-full object-cover flex-shrink-0 mr-1.5 mt-0.5"
+                className="w-4 h-4 rounded-full object-cover flex-shrink-0 mr-1.5 mt-0.5"
               />
               <div className="min-w-0 flex-1">
                 <span className="text-xs font-bold mr-1" style={{ color }}>
@@ -164,7 +164,7 @@ export default function ActivityFeed() {
                 )}
                 {intent.rationale && (
                   <span className="text-[10px] text-[#555] ml-1.5">
-                    — {intent.rationale.length > 80 ? intent.rationale.slice(0, 80) + "…" : intent.rationale}
+                    — {intent.rationale.length > 50 ? intent.rationale.slice(0, 50) + "…" : intent.rationale}
                   </span>
                 )}
               </div>
