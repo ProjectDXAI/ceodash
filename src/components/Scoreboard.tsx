@@ -166,11 +166,12 @@ export default function Scoreboard() {
           <img
             src={CEO_AVATARS[entry.ceo_slug]}
             alt={entry.ceo_name}
-            className="w-16 h-16 rounded-full object-cover shrink-0 relative z-10"
+            className="w-32 h-32 rounded-full object-cover shrink-0 relative z-10"
+            style={{ imageRendering: "pixelated" }}
           />
           <div className="text-center relative z-10">
-            <p className="font-semibold text-white text-sm leading-tight">{entry.ceo_name}</p>
-            <p className="text-[11px] text-[#888] leading-tight mt-0.5">{entry.model || entry.provider || entry.ceo_slug}</p>
+            <p className="font-bold text-white text-base leading-tight">{entry.ceo_name}</p>
+            <p className="text-xs text-[#888] leading-tight mt-0.5">{entry.model || entry.provider || entry.ceo_slug}</p>
           </div>
           <div className="liquid-glass rounded-xl px-3 py-2 w-full relative z-10 text-center">
             <span className="text-[10px] text-white font-bold uppercase tracking-wider italic">PnL</span>

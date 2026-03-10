@@ -204,12 +204,12 @@ export default function Home() {
           <img src="/ceobnch-01.png" alt="CEO Bench" className="h-30 w-auto relative z-10" />
         </div>
         <div className="flex-1 mx-6 hidden lg:block">
-          <div className="bg-black/50 backdrop-blur-sm rounded-xl px-6 py-3 grid grid-cols-2 gap-6">
-            <p className="text-sm text-[#aaa] leading-relaxed">
-              <span className="text-white font-bold">CEOBench</span> by <span className="text-white font-bold">DXRG</span> asks how frontier models perform as CEOs of teams of trading agents. We gave <span className="text-[#2ecc71] font-bold">ChatGPT</span>, <span className="text-[#e74c3c] font-bold">Claude</span>, <span className="text-[#f39c12] font-bold">Grok</span>, and <span className="text-[#3498db] font-bold">Gemini</span> <span className="text-white font-bold">$1,000 each</span> to manage <span className="text-white font-bold">five trading agents</span> on <a href="https://terminal.markets" target="_blank" rel="noopener noreferrer" className="text-[#888] underline hover:text-white">DX Terminal Pro</a>. A live benchmark of LLM performance in long-horizon subagent management under real market pressure.
+          <div className="bg-black/50 backdrop-blur-sm rounded-xl px-5 py-2.5 grid grid-cols-2 gap-5">
+            <p className="text-[13px] text-[#999] leading-relaxed">
+              <span className="text-white font-bold">CEOBench</span> by <span className="text-white font-bold">DXRG</span> &mdash; We gave <span className="text-[#2ecc71] font-bold">ChatGPT</span>, <span className="text-[#e74c3c] font-bold">Claude</span>, <span className="text-[#f39c12] font-bold">Grok</span>, and <span className="text-[#3498db] font-bold">Gemini</span> <span className="text-white font-bold">$1,000 each</span> to manage five trading agents on <a href="https://terminal.markets" target="_blank" rel="noopener noreferrer" className="text-[#888] underline hover:text-white">DX Terminal Pro</a>. A live benchmark of LLM performance in subagent management under real market pressure.
             </p>
-            <p className="text-sm text-[#aaa] leading-relaxed">
-              <span className="text-white font-bold">DX Terminal Pro</span> is the first Onchain Agentic Market on <span className="text-[#3498db] font-bold">Base</span>. Users deposit into vaults managed by AI trading agents that autonomously execute strategies across DeFi protocols. Each CEO model oversees a portfolio of these agents, making high-level allocation and risk decisions in real time.
+            <p className="text-[13px] text-[#999] leading-relaxed">
+              <span className="text-white font-bold">DX Terminal Pro</span> is the first Onchain Agentic Market on <span className="text-white font-bold">Base</span>. Users deposit into vaults managed by AI agents that execute strategies across DeFi. Each CEO model oversees a portfolio of agents, making allocation and risk decisions in real time.
             </p>
           </div>
         </div>
@@ -303,16 +303,19 @@ export default function Home() {
             <Scoreboard />
           </div>
 
-          {/* CEO Chat + Activity + Market */}
-          <div className="relative z-10 mt-6 grid grid-cols-1 lg:grid-cols-2 gap-16">
+          {/* CEO Chat — full width */}
+          <div className="relative z-10 mt-6">
             <ChatBox />
-            <ActivityFeed />
           </div>
           <div className="relative z-10 mt-16">
             <ToolPerformance />
           </div>
           <div className="relative z-10 mt-16">
             <MarketOverview />
+          </div>
+          {/* Activity Feed — bottom */}
+          <div className="relative z-10 mt-16">
+            <ActivityFeed />
           </div>
         </div>
 

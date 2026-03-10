@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   LineChart,
@@ -68,6 +68,7 @@ export default function LeaderboardChart({
   currentData,
   historicalData,
 }: LeaderboardChartProps) {
+  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const chartData = useMemo(() => {
     if (historicalData.length === 0) return [];
 
@@ -251,67 +252,114 @@ export default function LeaderboardChart({
                   const lastPoint = chartData[chartData.length - 1];
                   const xVal = xAxis.scale(lastPoint.date);
                   const r = 36;
-                  const sortedCeos = [...currentData].sort((a, b) => {
-                    const aVal = (lastPoint[a.ceo_slug] as number) ?? 0;
-                    const bVal = (lastPoint[b.ceo_slug] as number) ?? 0;
-                    return aVal - bVal;
-                  });
+                  const minGap = r * 2 + 8;
+
+                  // Build position list sorted by raw y (ascending = top of SVG)
+                  const items = currentData
+                    .map((ceo) => {
+                      const val = lastPoint[ceo.ceo_slug] as number | undefined;
+                      if (val === undefined || val === null) return null;
+                      const rawY = yAxis.scale(val);
+                      if (isNaN(rawY) || isNaN(xVal)) return null;
+                      return { ceo, val, rawY, adjustedY: rawY };
+                    })
+                    .filter(Boolean) as { ceo: CeoEntry; val: number; rawY: number; adjustedY: number }[];
+
+                  // Sort by rawY ascending (top of chart first) for de-clustering
+                  items.sort((a, b) => a.rawY - b.rawY);
+
+                  // Push apart overlapping bubbles (top to bottom)
+                  for (let i = 1; i < items.length; i++) {
+                    const prev = items[i - 1];
+                    const curr = items[i];
+                    const gap = curr.adjustedY - prev.adjustedY;
+                    if (gap < minGap) {
+                      const push = (minGap - gap) / 2;
+                      prev.adjustedY -= push;
+                      curr.adjustedY += push;
+                    }
+                  }
+
+                  // Re-sort by value ascending so highest renders on top
+                  items.sort((a, b) => a.val - b.val);
+
+                  // If one is hovered, move it to end so it renders on top of all
+                  if (hoveredSlug) {
+                    const idx = items.findIndex((it) => it.ceo.ceo_slug === hoveredSlug);
+                    if (idx >= 0) {
+                      const [hovered] = items.splice(idx, 1);
+                      items.push(hovered);
+                    }
+                  }
+
                   return (
                     <g>
-                      {sortedCeos.map((ceo) => {
-                        const val = lastPoint[ceo.ceo_slug];
-                        if (val === undefined || val === null) return null;
-                        const yVal = yAxis.scale(val);
-                        if (isNaN(yVal) || isNaN(xVal)) return null;
+                      {items.map((item) => {
+                        const { ceo, val, rawY, adjustedY } = item;
                         const color = CEO_COLORS[ceo.ceo_slug] || "#888";
                         const gif = CEO_GIFS[ceo.ceo_slug];
-                        const labelText = `$${Math.round(val as number).toLocaleString("en-US")}`;
+                        const labelText = `$${Math.round(val).toLocaleString("en-US")}`;
                         const labelWidth = labelText.length * 7 + 8;
                         const labelHeight = 24;
                         const labelX = xVal + r + 4;
-                        const labelY = yVal - labelHeight / 2;
+                        const labelY = adjustedY - labelHeight / 2;
                         const gifSize = r * 2;
+                        const isHovered = hoveredSlug === ceo.ceo_slug;
                         return (
                           <g key={`endpoint-${ceo.ceo_slug}`} style={{ filter: `drop-shadow(0 0 6px ${color}80)` }}>
-                            <circle cx={xVal} cy={yVal} r={r} fill={color} />
-                            {gif && (
-                              <foreignObject
-                                x={xVal - gifSize / 2}
-                                y={yVal - gifSize / 2}
-                                width={gifSize}
-                                height={gifSize}
-                              >
-                                <img
-                                  src={gif}
-                                  alt={ceo.ceo_name}
-                                  style={{
-                                    width: gifSize,
-                                    height: gifSize,
-                                    borderRadius: "50%",
-                                    objectFit: "cover",
-                                    imageRendering: "pixelated",
-                                  }}
-                                />
-                              </foreignObject>
+                            {/* Connector line from actual data point to adjusted bubble */}
+                            {Math.abs(adjustedY - rawY) > 2 && (
+                              <line x1={xVal} y1={rawY} x2={xVal} y2={adjustedY} stroke={color} strokeWidth={2} strokeOpacity={0.4} />
                             )}
-                            <rect
-                              x={labelX}
-                              y={labelY}
-                              width={labelWidth}
-                              height={labelHeight}
-                              fill={color}
-                            />
-                            <text
-                              x={labelX + labelWidth / 2}
-                              y={labelY + labelHeight / 2}
-                              textAnchor="middle"
-                              dominantBaseline="central"
-                              fill="white"
-                              fontSize={13}
-                              fontWeight={700}
+                            <g
+                              style={{ cursor: "pointer", transition: "transform 0.15s ease" }}
+                              onMouseEnter={() => setHoveredSlug(ceo.ceo_slug)}
+                              onMouseLeave={() => setHoveredSlug(null)}
+                              transform={isHovered ? `translate(0, 0) scale(1.1)` : undefined}
+                              transform-origin={`${xVal} ${adjustedY}`}
                             >
-                              {labelText}
-                            </text>
+                              <circle cx={xVal} cy={adjustedY} r={r} fill={color} />
+                              {gif && (
+                                <foreignObject
+                                  x={xVal - gifSize / 2}
+                                  y={adjustedY - gifSize / 2}
+                                  width={gifSize}
+                                  height={gifSize}
+                                  style={{ pointerEvents: "none" }}
+                                >
+                                  <img
+                                    src={gif}
+                                    alt={ceo.ceo_name}
+                                    style={{
+                                      width: gifSize,
+                                      height: gifSize,
+                                      borderRadius: "50%",
+                                      objectFit: "cover",
+                                      imageRendering: "pixelated",
+                                    }}
+                                  />
+                                </foreignObject>
+                              )}
+                              <rect
+                                x={labelX}
+                                y={labelY}
+                                width={labelWidth}
+                                height={labelHeight}
+                                fill={color}
+                                rx={4}
+                              />
+                              <text
+                                x={labelX + labelWidth / 2}
+                                y={labelY + labelHeight / 2}
+                                textAnchor="middle"
+                                dominantBaseline="central"
+                                fill="white"
+                                fontSize={13}
+                                fontWeight={700}
+                              >
+                                {labelText}
+                              </text>
+                            </g>
                           </g>
                         );
                       })}

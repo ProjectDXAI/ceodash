@@ -185,8 +185,9 @@ export default function ToolPerformance() {
     <div data-panel="tool-perf" className="panel-ethereal panel-ethereal-delay-3 rounded-[20px] border border-[#2a2a2a] overflow-hidden flex flex-col">
       <div className="flex items-center justify-between px-4 py-2 bg-[#111] relative z-10">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-white">Tool Call Adherence</span>
+          <span className="text-xs font-bold text-white">Tool Call Accuracy</span>
           <span className="text-[10px] text-[#555]">{data.reduce((a, c) => a + c.total_intent_count, 0)} intents</span>
+          <span className="text-[10px] text-[#444] italic">— % correct tool call formatting and values</span>
         </div>
       </div>
 
@@ -290,19 +291,19 @@ export default function ToolPerformance() {
                   </div>
                   <div className="liquid-glass rounded-xl px-3 py-2.5">
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
+                      <div className="text-center">
                         <p className="text-[#666] text-xs">Intents</p>
                         <p className="font-bold text-white text-lg">{ceo.total_intent_count}</p>
                       </div>
-                      <div>
+                      <div className="text-center">
                         <p className="text-[#666] text-xs">Swaps</p>
                         <p className="font-bold text-white text-lg">{ceo.total_swap_count}</p>
                       </div>
-                      <div>
+                      <div className="text-center">
                         <p className="text-[#666] text-xs">Pass</p>
                         <p className="font-bold text-[#81c784] text-lg">{ceo.total_intent_success_count}</p>
                       </div>
-                      <div>
+                      <div className="text-center">
                         <p className="text-[#666] text-xs">Fail</p>
                         <p className="font-bold text-[#e57373] text-lg">{ceo.total_intent_failure_count}</p>
                       </div>
