@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import {
   LineChart,
@@ -69,6 +69,15 @@ export default function LeaderboardChart({
   historicalData,
 }: LeaderboardChartProps) {
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const chartData = useMemo(() => {
     if (historicalData.length === 0) return [];
 
@@ -76,7 +85,9 @@ export default function LeaderboardChart({
     const now = Date.now();
     const nowBucket = Math.floor(now / MINUTE) * MINUTE;
 
-    const sorted = [...historicalData].sort((a, b) => a.timestamp - b.timestamp);
+    const sorted = [...historicalData].sort(
+      (a, b) => a.timestamp - b.timestamp,
+    );
     const startBucket = Math.floor(sorted[0].timestamp / MINUTE) * MINUTE;
 
     const rawBuckets: Record<number, PnlSnapshot> = {};
@@ -92,7 +103,9 @@ export default function LeaderboardChart({
 
     for (const snap of sorted) {
       if (snap.timestamp <= startBucket) {
-        slugs.forEach((s) => { if (snap.data[s] !== undefined) lastKnown[s] = snap.data[s]; });
+        slugs.forEach((s) => {
+          if (snap.data[s] !== undefined) lastKnown[s] = snap.data[s];
+        });
       }
     }
 
@@ -101,7 +114,9 @@ export default function LeaderboardChart({
       const real = rawBuckets[bucketTime];
 
       if (real) {
-        slugs.forEach((s) => { if (real.data[s] !== undefined) lastKnown[s] = real.data[s]; });
+        slugs.forEach((s) => {
+          if (real.data[s] !== undefined) lastKnown[s] = real.data[s];
+        });
       }
 
       // Only emit points once we have at least one known value
@@ -109,6 +124,7 @@ export default function LeaderboardChart({
         points.push({
           timestamp: bucketTime,
           date: format(new Date(bucketTime), "MMM d h:mm a"),
+          shortDate: format(new Date(bucketTime), "HH:mm"),
           ...Object.fromEntries(slugs.map((s) => [s, lastKnown[s]])),
         });
       }
@@ -118,7 +134,11 @@ export default function LeaderboardChart({
   }, [historicalData, currentData]);
 
   const { yDomain, yTicks } = useMemo(() => {
-    if (chartData.length === 0) return { yDomain: [900, 1300] as [number, number], yTicks: [900, 1000, 1100, 1200, 1300] };
+    if (chartData.length === 0)
+      return {
+        yDomain: [900, 1300] as [number, number],
+        yTicks: [900, 1000, 1100, 1200, 1300],
+      };
     const slugs = currentData.map((c) => c.ceo_slug);
     let min = Infinity;
     let max = -Infinity;
@@ -131,14 +151,21 @@ export default function LeaderboardChart({
         }
       });
     });
-    if (!isFinite(min) || !isFinite(max)) return { yDomain: [900, 1300] as [number, number], yTicks: [900, 1000, 1100, 1200, 1300] };
+    if (!isFinite(min) || !isFinite(max))
+      return {
+        yDomain: [900, 1300] as [number, number],
+        yTicks: [900, 1000, 1100, 1200, 1300],
+      };
 
     const padding = Math.max((max - min) * 0.15, 20);
     const domainMin = Math.floor((min - padding) / 50) * 50;
     const domainMax = Math.ceil((max + padding) / 50) * 50;
     const ticks: number[] = [];
     for (let v = domainMin; v <= domainMax; v += 50) ticks.push(v);
-    return { yDomain: [domainMin, domainMax] as [number, number], yTicks: ticks };
+    return {
+      yDomain: [domainMin, domainMax] as [number, number],
+      yTicks: ticks,
+    };
   }, [chartData, currentData]);
 
   const CustomTooltip = ({
@@ -147,7 +174,12 @@ export default function LeaderboardChart({
     label,
   }: {
     active?: boolean;
-    payload?: Array<{ color: string; name: string; value: number; dataKey: string }>;
+    payload?: Array<{
+      color: string;
+      name: string;
+      value: number;
+      dataKey: string;
+    }>;
     label?: string;
   }) => {
     if (!active || !payload || payload.length === 0) return null;
@@ -157,13 +189,20 @@ export default function LeaderboardChart({
         <p className="text-[#666] text-xs mb-3 font-bold">{label}</p>
         <div className="space-y-2">
           {sortedPayload.map((entry) => (
-            <div key={entry.dataKey} className="flex items-center justify-between gap-6">
+            <div
+              key={entry.dataKey}
+              className="flex items-center justify-between gap-6"
+            >
               <div className="flex items-center gap-2">
                 <div
                   className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: CEO_COLORS[entry.dataKey] || "#888" }}
+                  style={{
+                    backgroundColor: CEO_COLORS[entry.dataKey] || "#888",
+                  }}
                 />
-                <span className="text-sm font-bold text-[#ccc]">{entry.name}</span>
+                <span className="text-sm font-bold text-[#ccc]">
+                  {entry.name}
+                </span>
               </div>
               <span
                 className="text-sm font-extrabold"
@@ -179,31 +218,70 @@ export default function LeaderboardChart({
   };
 
   return (
-    <div data-panel="chart" className="rounded-[20px] border border-white/10 relative overflow-hidden" style={{ boxShadow: "0 0 15px rgba(255,255,255,0.15), 0 0 45px rgba(255,255,255,0.1), 0 0 100px rgba(255,255,255,0.05)" }}>
+    <div
+      data-panel="chart"
+      className="rounded-[20px] border border-white/10 relative overflow-hidden"
+      style={{
+        boxShadow:
+          "0 0 15px rgba(255,255,255,0.15), 0 0 45px rgba(255,255,255,0.1), 0 0 100px rgba(255,255,255,0.05)",
+      }}
+    >
       <GrassBackground />
 
-      {(
-        <div className="relative z-10 h-[600px] p-3" style={{ background: "rgba(0,0,0,0.45)" }}>
+      {
+        <div
+          className="relative z-10 h-[600px] p-2 md:p-3"
+          style={{ background: "rgba(0,0,0,0.45)" }}
+        >
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 30, right: 180, left: 40, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="6 6" stroke="rgba(255,255,255,0.15)" vertical={false} />
+            <LineChart
+              data={chartData}
+              margin={{ 
+                top: 30, 
+                right: isMobile ? 110 : 180, 
+                left: isMobile ? 5 : 40, 
+                bottom: 10 
+              }}
+            >
+              <CartesianGrid
+                strokeDasharray="6 6"
+                stroke="rgba(255,255,255,0.15)"
+                vertical={false}
+              />
               <XAxis
-                dataKey="date"
+                dataKey="timestamp"
+                type="number"
+                domain={['dataMin', 'dataMax']}
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
                 dy={8}
                 fontWeight={700}
-                label={{ value: "Time", position: "insideBottom", offset: -5, fill: "rgba(255,255,255,0.4)", fontSize: 11 }}
-                ticks={chartData.length >= 2 ? ([
-                  chartData[0].date,
-                  chartData[Math.floor(chartData.length / 5)].date,
-                  chartData[Math.floor(2 * chartData.length / 5)].date,
-                  chartData[Math.floor(3 * chartData.length / 5)].date,
-                  chartData[Math.floor(4 * chartData.length / 5)].date,
-                  chartData[chartData.length - 1].date,
-                ] as string[]) : undefined}
+                tickFormatter={(val) =>
+                  isMobile
+                    ? format(new Date(val), "HH:mm")
+                    : format(new Date(val), "MMM d h:mm a")
+                }
+                label={isMobile ? undefined : {
+                  value: "Time",
+                  position: "insideBottom",
+                  offset: -5,
+                  fill: "rgba(255,255,255,0.4)",
+                  fontSize: 11,
+                }}
+                ticks={
+                  chartData.length >= 2
+                    ? ([
+                        chartData[0].timestamp,
+                        chartData[Math.floor(chartData.length / 5)].timestamp,
+                        chartData[Math.floor((2 * chartData.length) / 5)].timestamp,
+                        chartData[Math.floor((3 * chartData.length) / 5)].timestamp,
+                        chartData[Math.floor((4 * chartData.length) / 5)].timestamp,
+                        chartData[chartData.length - 1].timestamp,
+                      ] as number[])
+                    : undefined
+                }
               />
               <YAxis
                 type="number"
@@ -212,12 +290,19 @@ export default function LeaderboardChart({
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(value) => formatUsd(value)}
-                dx={-5}
+                dx={isMobile ? 0 : -5}
                 fontWeight={700}
                 domain={yDomain}
                 ticks={yTicks}
                 allowDataOverflow
-                label={{ value: "Value USD", angle: -90, position: "insideLeft", offset: 15, fill: "rgba(255,255,255,0.4)", fontSize: 11 }}
+                label={isMobile ? undefined : {
+                  value: "Value USD",
+                  angle: -90,
+                  position: "insideLeft",
+                  offset: 15,
+                  fill: "rgba(255,255,255,0.4)",
+                  fontSize: 11,
+                }}
               />
               <Tooltip content={<CustomTooltip />} />
               {currentData.map((ceo) => {
@@ -248,22 +333,28 @@ export default function LeaderboardChart({
                   const { xAxisMap, yAxisMap } = props;
                   const xAxis = xAxisMap && Object.values(xAxisMap)[0] as { scale: (v: unknown) => number } | undefined;
                   const yAxis = yAxisMap && Object.values(yAxisMap)[0] as { scale: (v: unknown) => number } | undefined;
-                  if (!xAxis?.scale || !yAxis?.scale || chartData.length === 0) return null;
+                  if (!xAxis?.scale || !yAxis?.scale || chartData.length === 0)
+                    return null;
                   const lastPoint = chartData[chartData.length - 1];
-                  const xVal = xAxis.scale(lastPoint.date);
-                  const r = 36;
-                  const minGap = r * 2 + 8;
+                  const xVal = xAxis.scale(lastPoint.timestamp);
+                  const r = isMobile ? 24 : 36;
+                  const minGap = r * 2 + (isMobile ? 4 : 8);
 
                   // Build position list sorted by raw y (ascending = top of SVG)
                   const items = currentData
-                    .map((ceo) => {
+                    .map((ceo: CeoEntry) => {
                       const val = lastPoint[ceo.ceo_slug] as number | undefined;
                       if (val === undefined || val === null) return null;
                       const rawY = yAxis.scale(val);
                       if (isNaN(rawY) || isNaN(xVal)) return null;
                       return { ceo, val, rawY, adjustedY: rawY };
                     })
-                    .filter(Boolean) as { ceo: CeoEntry; val: number; rawY: number; adjustedY: number }[];
+                    .filter(Boolean) as {
+                    ceo: CeoEntry;
+                    val: number;
+                    rawY: number;
+                    adjustedY: number;
+                  }[];
 
                   // Sort by rawY ascending (top of chart first) for de-clustering
                   items.sort((a, b) => a.rawY - b.rawY);
@@ -285,7 +376,9 @@ export default function LeaderboardChart({
 
                   // If one is hovered, move it to end so it renders on top of all
                   if (hoveredSlug) {
-                    const idx = items.findIndex((it) => it.ceo.ceo_slug === hoveredSlug);
+                    const idx = items.findIndex(
+                      (it) => it.ceo.ceo_slug === hoveredSlug,
+                    );
                     if (idx >= 0) {
                       const [hovered] = items.splice(idx, 1);
                       items.push(hovered);
@@ -299,36 +392,57 @@ export default function LeaderboardChart({
                         const color = CEO_COLORS[ceo.ceo_slug] || "#888";
                         const gif = CEO_GIFS[ceo.ceo_slug];
                         const labelText = `$${Math.round(val).toLocaleString("en-US")}`;
-                        const labelFontSize = 16;
-                        const labelWidth = labelText.length * 9 + 14;
-                        const labelHeight = 28;
-                        const labelX = xVal + r + 6;
+                        const nameText = ceo.ceo_name;
+                        const labelFontSize = isMobile ? 14 : 16;
+                        const labelWidth = isMobile ? labelText.length * 8 + 12 : labelText.length * 9 + 14;
+                        const labelHeight = isMobile ? 26 : 28;
+                        const labelX = xVal + r + (isMobile ? 4 : 6);
                         const labelY = adjustedY - labelHeight / 2;
                         const gifSize = r * 2;
                         const isHovered = hoveredSlug === ceo.ceo_slug;
-                        const nameText = ceo.ceo_name;
+                        
                         const nameFontSize = 11;
                         const nameWidth = nameText.length * 6.5 + 12;
                         const nameHeight = 20;
                         const nameX = labelX + (labelWidth - nameWidth) / 2;
                         const nameY = labelY - nameHeight - 4;
                         return (
-                          <g key={`endpoint-${ceo.ceo_slug}`} style={{ filter: `drop-shadow(0 0 6px ${color}80)` }}>
+                          <g
+                            key={`endpoint-${ceo.ceo_slug}`}
+                            style={{
+                              filter: `drop-shadow(0 0 6px ${color}80)`,
+                            }}
+                          >
                             {/* Connector line from actual data point to adjusted bubble */}
                             {Math.abs(adjustedY - rawY) > 2 && (
-                              <line x1={xVal} y1={rawY} x2={xVal} y2={adjustedY} stroke={color} strokeWidth={2} strokeOpacity={0.4} />
+                              <line
+                                x1={xVal}
+                                y1={rawY}
+                                x2={xVal}
+                                y2={adjustedY}
+                                stroke={color}
+                                strokeWidth={2}
+                                strokeOpacity={0.4}
+                              />
                             )}
                             <g
                               style={{
                                 cursor: "pointer",
                                 transition: "transform 0.15s ease",
                                 transformOrigin: `${xVal}px ${adjustedY}px`,
-                                transform: isHovered ? "scale(1.15)" : "scale(1)",
+                                transform: isHovered
+                                  ? "scale(1.15)"
+                                  : "scale(1)",
                               }}
                               onMouseEnter={() => setHoveredSlug(ceo.ceo_slug)}
                               onMouseLeave={() => setHoveredSlug(null)}
                             >
-                              <circle cx={xVal} cy={adjustedY} r={r} fill={color} />
+                              <circle
+                                cx={xVal}
+                                cy={adjustedY}
+                                r={r}
+                                fill={color}
+                              />
                               {gif && (
                                 <foreignObject
                                   x={xVal - gifSize / 2}
@@ -406,7 +520,7 @@ export default function LeaderboardChart({
             </LineChart>
           </ResponsiveContainer>
         </div>
-      )}
+      }
     </div>
   );
 }

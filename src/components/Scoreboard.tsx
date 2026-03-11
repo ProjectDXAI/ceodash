@@ -50,7 +50,8 @@ interface ScoreboardEntry {
 }
 
 function ProviderLogo({ slug }: { slug: string }) {
-  const baseClass = "absolute w-[100px] h-[100px] opacity-[0.06] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none";
+  const baseClass =
+    "absolute w-[100px] h-[100px] opacity-[0.06] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none";
   switch (slug) {
     case "chatgpt":
       return (
@@ -72,7 +73,12 @@ function ProviderLogo({ slug }: { slug: string }) {
       );
     case "grok":
       return (
-        <svg className={baseClass} viewBox="0 0 24 24" fill="currentColor" fillRule="evenodd">
+        <svg
+          className={baseClass}
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          fillRule="evenodd"
+        >
           <path d="M9.27 15.29l7.978-5.897c.391-.29.95-.177 1.137.272.98 2.369.542 5.215-1.41 7.169-1.951 1.954-4.667 2.382-7.149 1.406l-2.711 1.257c3.889 2.661 8.611 2.003 11.562-.953 2.341-2.344 3.066-5.539 2.388-8.42l.006.007c-.983-4.232.242-5.924 2.75-9.383.06-.082.12-.164.179-.248l-3.301 3.305v-.01L9.267 15.292M7.623 16.723c-2.792-2.67-2.31-6.801.071-9.184 1.761-1.763 4.647-2.483 7.166-1.425l2.705-1.25a7.808 7.808 0 00-1.829-1A8.975 8.975 0 005.984 5.83c-2.533 2.536-3.33 6.436-1.962 9.764 1.022 2.487-.653 4.246-2.34 6.022-.599.63-1.199 1.259-1.682 1.925l7.62-6.815" />
         </svg>
       );
@@ -117,11 +123,16 @@ export default function Scoreboard() {
           for (const item of tpJson.data) {
             const slug = item.ceo_slug as string;
             if (!slug) continue;
-            tpBySlug[slug] = { vaults: Array.isArray(item.vaults) ? item.vaults : [] };
+            tpBySlug[slug] = {
+              vaults: Array.isArray(item.vaults) ? item.vaults : [],
+            };
           }
         }
 
-        const nameMap: Record<string, { ceo_name: string; provider: string; model: string }> = {};
+        const nameMap: Record<
+          string,
+          { ceo_name: string; provider: string; model: string }
+        > = {};
         for (const entry of sbJson.data || []) {
           nameMap[entry.ceo_slug] = {
             ceo_name: entry.ceo_name,
@@ -130,19 +141,25 @@ export default function Scoreboard() {
           };
         }
 
-        const vaultsRaw = vaultsJson.data as Record<string, {
-          ceo_slug: string;
-          total_pnl_usd: number;
-          total_value_usd: number;
-          avg_pnl_percent: number;
-        }>;
+        const vaultsRaw = vaultsJson.data as Record<
+          string,
+          {
+            ceo_slug: string;
+            total_pnl_usd: number;
+            total_value_usd: number;
+            avg_pnl_percent: number;
+          }
+        >;
         const vaultsBySlug: Record<string, (typeof vaultsRaw)[string]> = {};
         for (const [k, v] of Object.entries(vaultsRaw)) {
           if (v?.ceo_slug) vaultsBySlug[v.ceo_slug] = v;
-          if (v && CEO_SLUGS.includes(k as (typeof CEO_SLUGS)[number])) vaultsBySlug[k] = v;
+          if (v && CEO_SLUGS.includes(k as (typeof CEO_SLUGS)[number]))
+            vaultsBySlug[k] = v;
         }
 
-        const merged: ScoreboardEntry[] = CEO_SLUGS.filter((slug) => vaultsBySlug[slug] != null).map((slug) => {
+        const merged: ScoreboardEntry[] = CEO_SLUGS.filter(
+          (slug) => vaultsBySlug[slug] != null,
+        ).map((slug) => {
           const v = vaultsBySlug[slug];
           const meta = nameMap[slug];
           return {
@@ -157,7 +174,9 @@ export default function Scoreboard() {
           };
         });
 
-        setEntries(merged.sort((a, b) => b.avg_pnl_percent - a.avg_pnl_percent));
+        setEntries(
+          merged.sort((a, b) => b.avg_pnl_percent - a.avg_pnl_percent),
+        );
       } catch (e) {
         console.error("Scoreboard fetch error:", e);
       } finally {
@@ -172,7 +191,7 @@ export default function Scoreboard() {
 
   if (loading && entries.length === 0) {
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {CEO_SLUGS.map((slug) => (
           <div
             key={slug}
@@ -191,7 +210,7 @@ export default function Scoreboard() {
 
   return (
     <>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {entries.map((entry) => {
           const color = CEO_COLORS[entry.ceo_slug] || "#888";
           return (
@@ -209,46 +228,78 @@ export default function Scoreboard() {
                   style={{ imageRendering: "pixelated" }}
                 />
                 <div className="flex-1 min-w-0 relative z-10">
-                  <p className="font-bold text-sm leading-tight truncate" style={{ color }}>{entry.ceo_name}</p>
-                  <p className="text-[11px] text-[#999] font-medium leading-tight mt-0.5 truncate">{entry.model || entry.provider || entry.ceo_slug}</p>
+                  <p
+                    className="font-bold text-sm leading-tight truncate"
+                    style={{ color }}
+                  >
+                    {entry.ceo_name}
+                  </p>
+                  <p className="text-[11px] text-[#999] font-medium leading-tight mt-0.5 truncate">
+                    {entry.model || entry.provider || entry.ceo_slug}
+                  </p>
                   <div className="mt-1.5">
-                    <p className={`text-2xl font-extrabold leading-none ${entry.avg_pnl_percent >= 0 ? "text-[#81c784]" : "text-[#e57373]"}`}>
+                    <p
+                      className={`text-2xl font-extrabold leading-none ${entry.avg_pnl_percent >= 0 ? "text-[#81c784]" : "text-[#e57373]"}`}
+                    >
                       {formatPercent(entry.avg_pnl_percent)}
                     </p>
-                    <p className="text-xs text-white font-bold mt-0.5">{formatUsd(entry.total_pnl_usd)}</p>
+                    <p className="text-xs text-white font-bold mt-0.5">
+                      {formatUsd(entry.total_pnl_usd)}
+                    </p>
                   </div>
                 </div>
               </div>
               <button
-                onClick={() => setExpandedSlug(expandedSlug === entry.ceo_slug ? null : entry.ceo_slug)}
+                onClick={() =>
+                  setExpandedSlug(
+                    expandedSlug === entry.ceo_slug ? null : entry.ceo_slug,
+                  )
+                }
                 className="mt-2 w-full relative z-10 py-1.5 rounded-lg border border-[#2a2a2a] hover:border-[#444] hover:bg-[#1a1a1a] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                style={{ borderColor: expandedSlug === entry.ceo_slug ? `${color}55` : undefined }}
-                aria-label={expandedSlug === entry.ceo_slug ? "Collapse portfolio" : "Expand portfolio"}
+                style={{
+                  borderColor:
+                    expandedSlug === entry.ceo_slug ? `${color}55` : undefined,
+                }}
+                aria-label={
+                  expandedSlug === entry.ceo_slug
+                    ? "Collapse portfolio"
+                    : "Expand portfolio"
+                }
               >
                 <span className="text-[10px] text-[#666] font-bold uppercase tracking-wider">
                   {expandedSlug === entry.ceo_slug ? "Hide" : "Team"}
                 </span>
-                <svg className={`w-3.5 h-3.5 transition-transform ${expandedSlug === entry.ceo_slug ? "rotate-180" : ""}`} style={{ color }} viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                <svg
+                  className={`w-3.5 h-3.5 transition-transform ${expandedSlug === entry.ceo_slug ? "rotate-180" : ""}`}
+                  style={{ color }}
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
             </div>
           );
         })}
       </div>
-      {expandedSlug && (() => {
-        const entry = entries.find(e => e.ceo_slug === expandedSlug);
-        if (!entry) return null;
-        return (
-          <CeoPortfolio
-            ceoSlug={entry.ceo_slug}
-            ceoName={entry.ceo_name}
-            color={CEO_COLORS[entry.ceo_slug] || "#888"}
-            vaults={entry.vaults}
-            onClose={() => setExpandedSlug(null)}
-          />
-        );
-      })()}
+      {expandedSlug &&
+        (() => {
+          const entry = entries.find((e) => e.ceo_slug === expandedSlug);
+          if (!entry) return null;
+          return (
+            <CeoPortfolio
+              ceoSlug={entry.ceo_slug}
+              ceoName={entry.ceo_name}
+              color={CEO_COLORS[entry.ceo_slug] || "#888"}
+              vaults={entry.vaults}
+              onClose={() => setExpandedSlug(null)}
+            />
+          );
+        })()}
     </>
   );
 }

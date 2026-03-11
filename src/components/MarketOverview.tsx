@@ -49,9 +49,16 @@ interface MarketData {
 }
 
 const TOKEN_COLORS: string[] = [
-  "#f39c12", "#e74c3c", "#2ecc71", "#3498db",
-  "#9b59b6", "#1abc9c", "#e67e22", "#ec407a",
-  "#26c6da", "#ff7043",
+  "#f39c12",
+  "#e74c3c",
+  "#2ecc71",
+  "#3498db",
+  "#9b59b6",
+  "#1abc9c",
+  "#e67e22",
+  "#ec407a",
+  "#26c6da",
+  "#ff7043",
 ];
 
 if (typeof window !== "undefined") {
@@ -102,12 +109,13 @@ export default function MarketOverview() {
   const tokens = useMemo(() => {
     if (!market) return [];
     return market.overview.top_tokens_by_price_usd.filter(
-      (t) => !t.reaped && parseFloat(t.marketData.priceUsd) > 0
+      (t) => !t.reaped && parseFloat(t.marketData.priceUsd) > 0,
     );
   }, [market]);
 
   useEffect(() => {
-    const preload = (window as unknown as Record<string, (src: string) => void>).__preloadTokenImg;
+    const preload = (window as unknown as Record<string, (src: string) => void>)
+      .__preloadTokenImg;
     if (preload) tokens.forEach((t) => preload(t.image));
   }, [tokens]);
 
@@ -116,24 +124,37 @@ export default function MarketOverview() {
   const { overview } = market;
 
   return (
-    <div data-panel="market" className="panel-ethereal panel-ethereal-delay-2 rounded-[20px] border border-[#2a2a2a] overflow-hidden flex flex-col">
+    <div
+      data-panel="market"
+      className="panel-ethereal panel-ethereal-delay-2 rounded-[20px] border border-[#2a2a2a] overflow-hidden flex flex-col"
+    >
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#111] relative z-10">
+      <div className="flex items-center justify-between p-4 bg-[#111] relative z-10 border-b border-[#1a1a1a]">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-white">Market</span>
-          <span className="text-[10px] text-[#555]">{overview.tracked_token_count} tokens</span>
+          <span className="text-base font-bold text-white">Market</span>
+          <span className="text-xs text-neutral-500">
+            {overview.tracked_token_count} tokens
+          </span>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
-            <span className="text-[8px] font-mono text-[#2a3a4a] eva-ticker-dot" style={{ animationDelay: "-1.2s" }}>FEED:LIVE</span>
+            <span
+              className="text-[8px] font-mono text-[#2a3a4a] eva-ticker-dot"
+              style={{ animationDelay: "-1.2s" }}
+            >
+              FEED:LIVE
+            </span>
             <div className="w-6 h-[3px] bg-[#1a1a1a] rounded overflow-hidden">
               <div className="eva-meter-bar bg-[#9b59b6]/40" />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-[#555]">ETH</span>
+            <span className="text-xs text-neutral-500">ETH</span>
             <span className="text-[10px] text-white font-bold">
-              ${overview.eth_price.priceUsd.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              $
+              {overview.eth_price.priceUsd.toLocaleString(undefined, {
+                maximumFractionDigits: 2,
+              })}
             </span>
           </div>
         </div>
@@ -162,10 +183,16 @@ export default function MarketOverview() {
                   width={32}
                   height={32}
                 />
-                <span className="text-sm font-bold text-white">{token.symbol}</span>
+                <span className="text-sm font-bold text-white">
+                  {token.symbol}
+                </span>
               </div>
-              <div className="text-sm text-white font-bold">{formatMarketCap(price)}</div>
-              <div className="text-[10px] text-[#666] mt-0.5 font-mono">{formatPrice(price)}</div>
+              <div className="text-sm text-white font-bold">
+                {formatMarketCap(price)}
+              </div>
+              <div className="text-[10px] text-[#666] mt-0.5 font-mono">
+                {formatPrice(price)}
+              </div>
               <div
                 className={`text-xs font-bold mt-1 ${
                   change >= 0 ? "text-[#2ecc71]" : "text-[#e74c3c]"
@@ -183,10 +210,18 @@ export default function MarketOverview() {
       <div className="px-4 py-1.5 bg-[#111] border-t border-[#1a1a1a] flex items-center gap-2 relative z-10">
         <div className="flex -space-x-1">
           {tokens.slice(0, 6).map((t, i) => (
-            <img key={t.symbol} src={t.image} alt="" className="w-4 h-4 rounded-full border border-[#0a0a0a]" style={{ zIndex: 6 - i }} />
+            <img
+              key={t.symbol}
+              src={t.image}
+              alt=""
+              className="w-4 h-4 rounded-full border border-[#0a0a0a]"
+              style={{ zIndex: 6 - i }}
+            />
           ))}
         </div>
-        <span className="text-[10px] text-[#333]">{tokens.length} active</span>
+        <span className="text-[10px] text-neutral-600">
+          {tokens.length} active
+        </span>
         <div className="ml-auto flex items-center gap-3">
           <div className="flex items-center gap-1">
             <span className="text-[7px] font-mono text-[#333]">VOL</span>
@@ -201,9 +236,18 @@ export default function MarketOverview() {
             </div>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="led-2 w-1.5 h-1.5 rounded-full bg-[#2ecc71]" style={{ boxShadow: "0 0 4px #2ecc71" }} />
-            <span className="led-3 w-1.5 h-1.5 rounded-full bg-[#3498db]" style={{ boxShadow: "0 0 4px #3498db" }} />
-            <span className="led-1 w-1.5 h-1.5 rounded-full bg-[#9b59b6]" style={{ boxShadow: "0 0 4px #9b59b6" }} />
+            <span
+              className="led-2 w-1.5 h-1.5 rounded-full bg-[#2ecc71]"
+              style={{ boxShadow: "0 0 4px #2ecc71" }}
+            />
+            <span
+              className="led-3 w-1.5 h-1.5 rounded-full bg-[#3498db]"
+              style={{ boxShadow: "0 0 4px #3498db" }}
+            />
+            <span
+              className="led-1 w-1.5 h-1.5 rounded-full bg-[#9b59b6]"
+              style={{ boxShadow: "0 0 4px #9b59b6" }}
+            />
           </div>
         </div>
       </div>
