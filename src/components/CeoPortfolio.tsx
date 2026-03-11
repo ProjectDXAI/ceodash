@@ -202,22 +202,17 @@ export default function CeoPortfolio({
           if (!vaultData || typeof vaultData !== "object") continue;
           const vault = vaultData as Record<string, unknown>;
 
-          const ethBalanceWei = vault.ethBalance as string | undefined;
-          if (ethBalanceWei && parseFloat(ethBalanceWei) > 0) {
-            const ethUsd = parseFloat((vault.overallValueUsd as string) || "0");
-            if (!tokenMap["eth"]) {
-              tokenMap["eth"] = { tokenSymbol: "ETH", totalValueUsd: 0, tokenImage: null };
-            }
-            tokenMap["eth"].totalValueUsd += ethUsd;
-          }
-
+          const overallUsd = parseFloat((vault.overallValueUsd as string) || "0");
           const positionsArray = Array.isArray(vault.positions) ? vault.positions : [];
 
+          // Sum token position values first
+          let tokenTotalUsd = 0;
           for (const pos of positionsArray as Array<Record<string, unknown>>) {
             const addr = pos.tokenAddress as string;
             if (!addr) continue;
             const key = addr.toLowerCase();
             const valUsd = parseFloat(String(pos.currentValueUsd || "0"));
+            tokenTotalUsd += valUsd;
             if (!tokenMap[key]) {
               tokenMap[key] = {
                 tokenSymbol: (pos.tokenSymbol as string) || key.slice(0, 6),
@@ -226,6 +221,15 @@ export default function CeoPortfolio({
               };
             }
             tokenMap[key].totalValueUsd += valUsd;
+          }
+
+          // ETH value = total vault value minus all token positions
+          const ethUsd = overallUsd - tokenTotalUsd;
+          if (ethUsd > 0.01) {
+            if (!tokenMap["eth"]) {
+              tokenMap["eth"] = { tokenSymbol: "ETH", totalValueUsd: 0, tokenImage: null };
+            }
+            tokenMap["eth"].totalValueUsd += ethUsd;
           }
         }
 
