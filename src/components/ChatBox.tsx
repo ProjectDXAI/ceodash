@@ -170,7 +170,7 @@ export default function ChatBox() {
                   <span className="text-xs font-bold mr-1.5" style={{ color }}>
                     {name}
                   </span>
-                  <span className="text-[13px] leading-relaxed text-[#bbb]">
+                  <span className="text-[15px] leading-relaxed text-[#bbb]">
                     {renderContent(msg.content, idx)}
                   </span>
                 </div>
