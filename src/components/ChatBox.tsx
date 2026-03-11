@@ -117,15 +117,20 @@ export default function ChatBox() {
   }, [filtered.length]);
 
   return (
-    <div data-panel="chat" className="panel-ethereal rounded-[20px] border border-[#2a2a2a] overflow-hidden flex flex-col">
+    <div
+      data-panel="chat"
+      className="panel-ethereal rounded-[20px] border border-[#2a2a2a] overflow-hidden flex flex-col"
+    >
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#111] relative z-10">
+      <div className="flex items-center justify-between p-4 bg-[#111] relative z-10 border-b border-[#1a1a1a]">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-white">Chat</span>
-          <span className="text-[10px] text-[#555]">{filtered.length}</span>
+          <span className="text-base font-bold text-white">Chat</span>
+          <span className="text-xs text-neutral-500">{filtered.length}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[8px] font-mono text-[#2a4a3a] eva-ticker-dot">SYS:OK</span>
+          <span className="text-[8px] font-mono text-[#2a4a3a] eva-ticker-dot">
+            SYS:OK
+          </span>
           <div className="w-8 h-[3px] bg-[#1a1a1a] rounded overflow-hidden">
             <div className="eva-meter-bar bg-[#2ecc71]/40" />
           </div>
@@ -135,11 +140,13 @@ export default function ChatBox() {
       {/* Messages stream */}
       <div
         ref={scrollRef}
-        className="max-h-[400px] overflow-y-auto px-3 py-2 space-y-0.5"
-        style={{
-          maskImage: "linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)",
-        }}
+        className="max-h-[400px] overflow-y-auto "
+        // style={{
+        //   maskImage:
+        //     "linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)",
+        //   WebkitMaskImage:
+        //     "linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)",
+        // }}
       >
         {filtered.length === 0 ? (
           <div className="flex items-center justify-center h-full text-[#444] text-xs">
@@ -156,9 +163,9 @@ export default function ChatBox() {
               <div
                 key={msg.id}
                 data-ceo-slug={msg.ceo_slug}
-                className="group flex items-start gap-0 py-1 px-1 rounded hover:bg-[#ffffff06] transition-colors"
+                className="group flex items-start gap-0 py-1.5 pr-2 rounded hover:bg-[#ffffff06] transition-colors"
               >
-                <span className="text-[10px] text-[#333] w-8 flex-shrink-0 pt-0.5 text-right mr-2 font-mono">
+                <span className="text-[10px]  w-8 flex-shrink-0 pt-0.5 text-right mr-2 font-mono">
                   {time}
                 </span>
                 <img
@@ -170,7 +177,7 @@ export default function ChatBox() {
                   <span className="text-xs font-bold mr-1.5" style={{ color }}>
                     {name}
                   </span>
-                  <span className="text-[15px] leading-relaxed text-[#bbb]">
+                  <span className="text-[15px] leading-relaxed text-neutral-500">
                     {renderContent(msg.content, idx)}
                   </span>
                 </div>
@@ -184,10 +191,15 @@ export default function ChatBox() {
       <div className="px-4 py-1.5 bg-[#111] border-t border-[#1a1a1a] flex items-center gap-2 relative z-10">
         <div className="flex -space-x-1.5">
           {Object.entries(CEO_AVATARS).map(([slug, src]) => (
-            <img key={slug} src={src} alt="" className="w-4 h-4 rounded-full border border-[#0a0a0a]" />
+            <img
+              key={slug}
+              src={src}
+              alt=""
+              className="w-4 h-4 rounded-full border border-[#0a0a0a]"
+            />
           ))}
         </div>
-        <span className="text-[10px] text-[#333]">4 CEOs online</span>
+        <span className="text-[10px] text-neutral-600">4 CEOs online</span>
         <div className="ml-auto flex items-center gap-3">
           <div className="flex items-center gap-1">
             <span className="text-[7px] font-mono text-[#333]">RX</span>
@@ -202,9 +214,18 @@ export default function ChatBox() {
             </div>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="led-1 w-1.5 h-1.5 rounded-full bg-[#2ecc71]" style={{ boxShadow: "0 0 4px #2ecc71" }} />
-            <span className="led-2 w-1.5 h-1.5 rounded-full bg-[#f39c12]" style={{ boxShadow: "0 0 4px #f39c12" }} />
-            <span className="led-3 w-1.5 h-1.5 rounded-full bg-[#3498db]" style={{ boxShadow: "0 0 4px #3498db" }} />
+            <span
+              className="led-1 w-1.5 h-1.5 rounded-full bg-[#2ecc71]"
+              style={{ boxShadow: "0 0 4px #2ecc71" }}
+            />
+            <span
+              className="led-2 w-1.5 h-1.5 rounded-full bg-[#f39c12]"
+              style={{ boxShadow: "0 0 4px #f39c12" }}
+            />
+            <span
+              className="led-3 w-1.5 h-1.5 rounded-full bg-[#3498db]"
+              style={{ boxShadow: "0 0 4px #3498db" }}
+            />
           </div>
         </div>
       </div>

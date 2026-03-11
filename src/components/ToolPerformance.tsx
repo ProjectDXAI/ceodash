@@ -81,14 +81,35 @@ function LogoIcon({ slug, size = 14 }: { slug: string; size?: number }) {
   );
 }
 
-function CustomBarShape({ x, y, width, height, ceo_slug, fill }: {
-  x: number; y: number; width: number; height: number; ceo_slug: string; fill: string;
+function CustomBarShape({
+  x,
+  y,
+  width,
+  height,
+  ceo_slug,
+  fill,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  ceo_slug: string;
+  fill: string;
 }) {
   const logo = CEO_LOGOS[ceo_slug];
   const iconSize = Math.min(width * 0.55, height * 0.45, 56);
   return (
     <g>
-      <rect x={x} y={y} width={width} height={height} fill={fill} fillOpacity={0.85} rx={6} ry={6} />
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={fill}
+        fillOpacity={0.85}
+        rx={6}
+        ry={6}
+      />
       {logo && height > 20 && (
         <svg
           x={x + (width - iconSize) / 2}
@@ -118,13 +139,18 @@ const CustomTooltip = ({
   return (
     <div className="bg-[#1a1a1a] rounded-2xl p-4 shadow-lg border border-[#2a2a2a] min-w-[200px]">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+        <div
+          className="w-3 h-3 rounded-full"
+          style={{ backgroundColor: color }}
+        />
         <span className="text-sm font-bold text-white">{d.ceo_name}</span>
       </div>
       <div className="space-y-1.5 text-xs">
         <div className="flex justify-between">
           <span className="text-[#888]">Success Rate</span>
-          <span className="font-bold" style={{ color }}>{d.total_tool_call_success_percentage.toFixed(1)}%</span>
+          <span className="font-bold" style={{ color }}>
+            {d.total_tool_call_success_percentage.toFixed(1)}%
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-[#888]">Total Intents</span>
@@ -132,11 +158,15 @@ const CustomTooltip = ({
         </div>
         <div className="flex justify-between">
           <span className="text-[#888]">Successful</span>
-          <span className="font-bold text-[#81c784]">{d.total_intent_success_count}</span>
+          <span className="font-bold text-[#81c784]">
+            {d.total_intent_success_count}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-[#888]">Failed</span>
-          <span className="font-bold text-[#e57373]">{d.total_intent_failure_count}</span>
+          <span className="font-bold text-[#e57373]">
+            {d.total_intent_failure_count}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-[#888]">Total Swaps</span>
@@ -172,7 +202,11 @@ export default function ToolPerformance() {
 
   const chartData = useMemo(() => {
     return [...data]
-      .sort((a, b) => b.total_tool_call_success_percentage - a.total_tool_call_success_percentage)
+      .sort(
+        (a, b) =>
+          b.total_tool_call_success_percentage -
+          a.total_tool_call_success_percentage,
+      )
       .map((d) => ({
         ...d,
         fillColor: CEO_COLORS[d.ceo_slug] || "#888",
@@ -182,12 +216,21 @@ export default function ToolPerformance() {
   if (loading || data.length === 0) return null;
 
   return (
-    <div data-panel="tool-perf" className="panel-ethereal panel-ethereal-delay-3 rounded-[20px] border border-[#2a2a2a] overflow-hidden flex flex-col">
-      <div className="flex items-center justify-between px-4 py-2 bg-[#111] relative z-10">
+    <div
+      data-panel="tool-perf"
+      className="panel-ethereal panel-ethereal-delay-3 rounded-[20px] border border-[#2a2a2a] overflow-hidden flex flex-col"
+    >
+      <div className="flex items-center justify-between p-4 bg-[#111] relative z-10 border-b border-[#1a1a1a]">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-white">Tool Call Accuracy</span>
-          <span className="text-[10px] text-[#555]">{data.reduce((a, c) => a + c.total_intent_count, 0)} intents</span>
-          <span className="text-[10px] text-[#444] italic">— % correct tool call formatting and values</span>
+          <span className="text-base font-bold text-white">
+            Tool Call Accuracy
+          </span>
+          <span className="text-xs text-neutral-500">
+            {data.reduce((a, c) => a + c.total_intent_count, 0)} intents
+          </span>
+          <span className="text-xs text-neutral-500 italic">
+            — % correct tool call formatting and values
+          </span>
         </div>
       </div>
 
@@ -200,7 +243,11 @@ export default function ToolPerformance() {
               barCategoryGap="10%"
               barGap={2}
             >
-              <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.08)" vertical={false} />
+              <CartesianGrid
+                strokeDasharray="4 4"
+                stroke="rgba(255,255,255,0.08)"
+                vertical={false}
+              />
               <XAxis
                 dataKey="ceo_name"
                 stroke="rgba(255,255,255,0.4)"
@@ -208,12 +255,27 @@ export default function ToolPerformance() {
                 fontWeight={700}
                 tickLine={false}
                 axisLine={false}
-                tick={({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => {
-                  const slug = data.find((d) => d.ceo_name === payload.value)?.ceo_slug || "";
+                tick={({
+                  x,
+                  y,
+                  payload,
+                }: {
+                  x: number;
+                  y: number;
+                  payload: { value: string };
+                }) => {
+                  const slug =
+                    data.find((d) => d.ceo_name === payload.value)?.ceo_slug ||
+                    "";
                   const color = CEO_COLORS[slug] || "#888";
                   return (
                     <g transform={`translate(${x},${y + 12})`}>
-                      <text textAnchor="middle" fill={color} fontSize={12} fontWeight={700}>
+                      <text
+                        textAnchor="middle"
+                        fill={color}
+                        fontSize={12}
+                        fontWeight={700}
+                      >
                         {payload.value}
                       </text>
                     </g>
@@ -231,11 +293,21 @@ export default function ToolPerformance() {
                 tickFormatter={(v) => `${v}%`}
                 dx={-5}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "rgba(255,255,255,0.03)" }}
+              />
               <Bar
                 dataKey="total_tool_call_success_percentage"
                 shape={(props: unknown) => {
-                  const entry = props as { x: number; y: number; width: number; height: number; ceo_slug: string; fillColor: string };
+                  const entry = props as {
+                    x: number;
+                    y: number;
+                    width: number;
+                    height: number;
+                    ceo_slug: string;
+                    fillColor: string;
+                  };
                   return (
                     <CustomBarShape
                       x={entry.x}
@@ -247,7 +319,17 @@ export default function ToolPerformance() {
                     />
                   );
                 }}
-                label={({ x, y, width, value }: { x: number; y: number; width: number; value: number }) => (
+                label={({
+                  x,
+                  y,
+                  width,
+                  value,
+                }: {
+                  x: number;
+                  y: number;
+                  width: number;
+                  value: number;
+                }) => (
                   <text
                     x={x + width / 2}
                     y={y - 8}
@@ -268,13 +350,16 @@ export default function ToolPerformance() {
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-3 grid grid-cols-4 gap-3">
+        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {chartData.map((ceo) => {
             const color = CEO_COLORS[ceo.ceo_slug] || "#888";
             const modelName = MODEL_NAMES[ceo.ceo_slug] || ceo.ceo_slug;
             const logo = CEO_LOGOS[ceo.ceo_slug];
             return (
-              <div key={ceo.ceo_slug} className="rounded-2xl border border-[#2a2a2a] bg-[#141414] p-4 relative overflow-hidden">
+              <div
+                key={ceo.ceo_slug}
+                className="rounded-2xl border border-[#2a2a2a] bg-[#141414] p-4 relative overflow-hidden"
+              >
                 {logo && (
                   <svg
                     className="absolute w-[100px] h-[100px] opacity-[0.12] -left-4 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -286,26 +371,38 @@ export default function ToolPerformance() {
                 )}
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 mb-3">
-                    <span style={{ color }}><LogoIcon slug={ceo.ceo_slug} size={18} /></span>
-                    <span className="text-sm font-bold" style={{ color }}>{modelName}</span>
+                    <span style={{ color }}>
+                      <LogoIcon slug={ceo.ceo_slug} size={18} />
+                    </span>
+                    <span className="text-sm font-bold" style={{ color }}>
+                      {modelName}
+                    </span>
                   </div>
                   <div className="liquid-glass rounded-xl px-3 py-2.5">
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="text-center">
                         <p className="text-[#666] text-xs">Intents</p>
-                        <p className="font-bold text-white text-lg">{ceo.total_intent_count}</p>
+                        <p className="font-bold text-white text-lg">
+                          {ceo.total_intent_count}
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-[#666] text-xs">Swaps</p>
-                        <p className="font-bold text-white text-lg">{ceo.total_swap_count}</p>
+                        <p className="font-bold text-white text-lg">
+                          {ceo.total_swap_count}
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-[#666] text-xs">Pass</p>
-                        <p className="font-bold text-[#81c784] text-lg">{ceo.total_intent_success_count}</p>
+                        <p className="font-bold text-[#81c784] text-lg">
+                          {ceo.total_intent_success_count}
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-[#666] text-xs">Fail</p>
-                        <p className="font-bold text-[#e57373] text-lg">{ceo.total_intent_failure_count}</p>
+                        <p className="font-bold text-[#e57373] text-lg">
+                          {ceo.total_intent_failure_count}
+                        </p>
                       </div>
                     </div>
                   </div>
