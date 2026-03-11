@@ -199,7 +199,7 @@ export default function ChatBox() {
             />
           ))}
         </div>
-        <span className="text-[10px] text-[#333]">4 CEOs online</span>
+        <span className="text-[10px] text-neutral-600">4 CEOs online</span>
         <div className="ml-auto flex items-center gap-3">
           <div className="flex items-center gap-1">
             <span className="text-[7px] font-mono text-[#333]">RX</span>

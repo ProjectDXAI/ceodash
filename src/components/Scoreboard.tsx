@@ -255,7 +255,7 @@ export default function Scoreboard() {
                     expandedSlug === entry.ceo_slug ? null : entry.ceo_slug,
                   )
                 }
-                className="mt-2 w-full relative z-10 py-1.5 rounded-lg border border-[#2a2a2a] hover:border-[#444] hover:bg-[#1a1a1a] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="mt-2 w-full relative z-10 py-1.5 rounded-lg border backdrop-blur border-[#2a2a2a] hover:border-[#444] bg-[#1a1a1a]/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 style={{
                   borderColor:
                     expandedSlug === entry.ceo_slug ? `${color}55` : undefined,
