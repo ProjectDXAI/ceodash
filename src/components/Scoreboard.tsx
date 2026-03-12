@@ -191,7 +191,7 @@ export default function Scoreboard() {
 
   if (loading && entries.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {CEO_SLUGS.map((slug) => (
           <div
             key={slug}
@@ -210,7 +210,7 @@ export default function Scoreboard() {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {entries.map((entry) => {
           const color = CEO_COLORS[entry.ceo_slug] || "#888";
           return (

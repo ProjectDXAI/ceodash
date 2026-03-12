@@ -368,7 +368,7 @@ export default function ToolPerformance() {
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
           {chartData.map((ceo) => {
             const color = CEO_COLORS[ceo.ceo_slug] || "#888";
             const modelName = MODEL_NAMES[ceo.ceo_slug] || ceo.ceo_slug;
