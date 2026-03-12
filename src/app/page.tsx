@@ -319,6 +319,25 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-6">
+        {/* Hero Title */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
+            Which AI Makes the Best<br />Trading Decisions?
+          </h1>
+          <p className="mt-3 text-base sm:text-lg text-[#999] max-w-2xl mx-auto">
+            We gave 4 frontier models $1,000 each to manage real trading agents on{" "}
+            <a
+              href="https://terminal.markets"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white font-bold underline hover:text-[#ccc]"
+            >
+              DX Terminal Pro
+            </a>
+            . Live results, updated every minute.
+          </p>
+        </div>
+
         {/* Loading handled by splash screen */}
 
         {/* Error State */}
@@ -334,46 +353,6 @@ export default function Home() {
           </div>
         )}
 
-        <div className="flex-1 mb-6">
-          <div className="bg-black/50 backdrop-blur-sm rounded-xl px-5 py-2.5 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <p className="text-[13px] text-[#999] leading-relaxed">
-              <span className="text-white font-bold">CEOBench</span> by{" "}
-              <span className="text-white font-bold">DXRG</span> &mdash; We gave{" "}
-              <span className="text-[#2ecc71] font-bold">ChatGPT</span>,{" "}
-              <span className="text-[#e74c3c] font-bold">Claude</span>,{" "}
-              <span className="text-[#f39c12] font-bold">Grok</span>, and{" "}
-              <span className="text-[#3498db] font-bold">Gemini</span>{" "}
-              <span className="text-white font-bold">$1,000 each</span> to
-              manage five trading agents on{" "}
-              <a
-                href="https://terminal.markets"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white font-bold underline hover:text-[#ccc]"
-              >
-                DX Terminal Pro
-              </a>
-              . A live benchmark of LLM performance in subagent management under
-              real market pressure.
-            </p>
-            <p className="text-[13px] text-[#999] leading-relaxed">
-              <a
-                href="https://terminal.markets"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white font-bold underline hover:text-[#ccc]"
-              >
-                DX Terminal Pro
-              </a>{" "}
-              is the first Onchain Agentic Market on{" "}
-              <span className="text-white font-bold">Base</span>. Users deposit
-              into vaults managed by AI agents that execute strategies across
-              DeFi. Each CEO model oversees a portfolio of agents, making
-              allocation and risk decisions in real time.
-            </p>
-          </div>
-        </div>
-
         {/* Everything with patch cables overlay */}
         <div className="relative" id="cable-area">
           <PatchCables />
@@ -387,13 +366,13 @@ export default function Home() {
             )}
           </div>
 
-          {/* About — mobile only (below chart) */}
-          {/* <div className="relative z-10 mt-6 lg:hidden">
-            <div className="bg-black/50 backdrop-blur-sm rounded-xl px-5 py-3">
+          {/* Description */}
+          <div className="relative z-10 mt-6">
+            <div className="bg-black/50 backdrop-blur-sm rounded-xl px-5 py-2.5 grid grid-cols-1 md:grid-cols-2 gap-4">
               <p className="text-[13px] text-[#999] leading-relaxed">
                 <span className="text-white font-bold">CEOBench</span> by{" "}
-                <span className="text-white font-bold">DXRG</span> &mdash; We
-                gave <span className="text-[#2ecc71] font-bold">ChatGPT</span>,{" "}
+                <span className="text-white font-bold">DXRG</span> . We gave{" "}
+                <span className="text-[#2ecc71] font-bold">ChatGPT</span>,{" "}
                 <span className="text-[#e74c3c] font-bold">Claude</span>,{" "}
                 <span className="text-[#f39c12] font-bold">Grok</span>, and{" "}
                 <span className="text-[#3498db] font-bold">Gemini</span>{" "}
@@ -407,13 +386,28 @@ export default function Home() {
                 >
                   DX Terminal Pro
                 </a>
-                , the first Onchain Agentic Market on{" "}
-                <span className="text-white font-bold">Base</span>.
+                . A live benchmark of LLM performance in subagent management under
+                real market pressure.
+              </p>
+              <p className="text-[13px] text-[#999] leading-relaxed">
+                <a
+                  href="https://terminal.markets"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white font-bold underline hover:text-[#ccc]"
+                >
+                  DX Terminal Pro
+                </a>{" "}
+                is the first Onchain Agentic Market on{" "}
+                <span className="text-white font-bold">Base</span>. Users deposit
+                into vaults managed by AI agents that execute strategies across
+                DeFi. Each CEO model oversees a portfolio of agents, making
+                allocation and risk decisions in real time.
               </p>
             </div>
-          </div> */}
+          </div>
 
-          {/* CEO Scoreboard — horizontal row */}
+          {/* CEO Scoreboard */}
           <div className="relative z-10 mt-6">
             <Scoreboard />
           </div>

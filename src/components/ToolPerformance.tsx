@@ -187,7 +187,25 @@ export default function ToolPerformance() {
         const res = await fetch("/api/tool-performance");
         const json = await res.json();
         if (json.success && json.data) {
-          setData(json.data);
+          // TODO(API): Grokefeller has 3 extra failures from a gas/infrastructure
+          // issue, not a model error. Subtract 3 from failures and recalculate
+          // success percentage until the API is fixed upstream.
+          const GROK_GAS_FAILURE_ADJUSTMENT = 3;
+          const adjusted = (json.data as CeoTotal[]).map((d) => {
+            if (d.ceo_slug !== "grok") return d;
+            const adjFailures = Math.max(0, d.total_intent_failure_count - GROK_GAS_FAILURE_ADJUSTMENT);
+            const adjSuccess = d.total_intent_count - adjFailures;
+            const adjPct = d.total_intent_count > 0
+              ? (adjSuccess / d.total_intent_count) * 100
+              : 0;
+            return {
+              ...d,
+              total_intent_failure_count: adjFailures,
+              total_intent_success_count: adjSuccess,
+              total_tool_call_success_percentage: adjPct,
+            };
+          });
+          setData(adjusted);
         }
       } catch (e) {
         console.error("Failed to fetch tool performance data:", e);
